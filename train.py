@@ -40,7 +40,7 @@ os.makedirs(RECORDER_DIR, exist_ok=True)
 DATA_DIR = os.path.join(PROJECT_DIR, 'data', config['DIRECTORY']['dataset'])
 
 # Seed
-torch.manual_seed(config['TRAINER']['seed'])
+torch.manual_seed(config['TRAINER']['seed'])    # random_seed 출력 값 고정
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(config['TRAINER']['seed'])
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     """
     00. Set Logger
     """
-    logger = get_logger(name='train', dir_=RECORDER_DIR, stream=False)
+    logger = get_logger(name='train', dir_=RECORDER_DIR, stream=True)
     logger.info(f"Set Logger {RECORDER_DIR}")
 
     """
@@ -109,8 +109,8 @@ if __name__ == '__main__':
 
     # !Wandb
     if config['LOGGER']['wandb'] == True: ## 사용시 본인 wandb 계정 입력
-        wandb_project_serial = 'Semi'
-        wandb_username =  '#'
+        wandb_project_serial = 'pneuma'
+        wandb_username =  'hanqpark'
         wandb.init(project=wandb_project_serial, dir=RECORDER_DIR, entity=wandb_username)
         wandb.run.name = train_serial
         wandb.config.update(config)
@@ -129,7 +129,7 @@ if __name__ == '__main__':
         # Set Recorder row
         row_dict = dict()
         row_dict['epoch_index'] = epoch_index
-        row_dict['train_serial'] = train_serial
+        # row_dict['train_serial'] = train_serial
         
         """
         Train
@@ -152,7 +152,7 @@ if __name__ == '__main__':
         logger.info(f"--Val {epoch_index}/{n_epochs}")
         trainer.valid(valid_l_loader=valid_l_loader)
         
-        row_dict['val_loss'] = trainer.loss_mean
+        # row_dict['val_loss'] = trainer.loss_mean
         row_dict['val_elapsed_time'] = trainer.elapsed_time 
         
         for metric_str, score in trainer.score_dict.items():

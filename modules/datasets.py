@@ -130,8 +130,10 @@ def get_harbor_idx(root, train=True, is_label=True ,label_num=15):
             valid_idx = []
             for c in classes:
                 matched_idx = [i for i in image_idx_list if c in i]
-                train_idx.extend(matched_idx[:label_num])
-                valid_idx.extend(matched_idx[label_num:])
+                # train_idx.extend(matched_idx[:label_num])
+                # valid_idx.extend(matched_idx[label_num:])
+                train_idx.extend(matched_idx[label_num:])
+                valid_idx.extend(matched_idx[:label_num])
             return train_idx, valid_idx
         else:
             image_path = glob(os.path.join(root, 'train', 'unlabeled_images', '*.jpg'))

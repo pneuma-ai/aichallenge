@@ -144,11 +144,12 @@ class Trainer():
 
     def valid(self, valid_l_loader):
         valid_epoch = len(valid_l_loader)
+        start_timestamp = time()
         with torch.no_grad():
             self.ema.model.eval()
             valid_dataset = iter(valid_l_loader)
             valid_conf_mat = ConfMatrix(self.data_loader.num_segments)
-            for i in range(valid_epoch):
+            for _ in range(valid_epoch):
                 valid_data, valid_label = valid_dataset.next()
                 valid_data, valid_label = valid_data.to(self.device), valid_label.to(self.device)
 
@@ -157,6 +158,10 @@ class Trainer():
                 valid_conf_mat.update(pred_u_large_raw.argmax(1).flatten(), valid_label.flatten())
         self.mIoU, _ = valid_conf_mat.get_metrics()
         self.score_dict['mIoU'] = self.mIoU
+
+        # Elapsed time
+        end_timestamp = time()
+        self.elapsed_time = end_timestamp - start_timestamp
 
     def inference(self, test_loader, save_path, sample_submission):
         # batch size of the test loader should be 1

@@ -1,5 +1,5 @@
 DIRECTORY:
-  dataset: ../../data/final_data #개발 경로에 맞게 수정하세요 !
+  dataset: ./results #개발 경로에 맞게 수정하세요 !
   
 TRAINER :
   model: deeplabv3p
@@ -7,7 +7,7 @@ TRAINER :
   learning_rate: 5.0e-4
   n_epochs: 200
   early_stopping_target: val_mIoU
-  early_stopping_patience: 10
+  early_stopping_patience: 20
   early_stopping_mode: max #min
   gpu: 0
   seed: 42

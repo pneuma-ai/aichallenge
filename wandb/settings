@@ -1,0 +1,5 @@
+[default]
+entity = hanqpark
+project = pneuma
+base_url = https://api.wandb.ai
+
