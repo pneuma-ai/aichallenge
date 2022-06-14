@@ -1,6 +1,7 @@
 """학습 스크립트
 """
 
+from unittest.loader import VALID_MODULE_NAME
 from modules.utils import load_yaml, save_yaml, get_logger
 from modules.earlystoppers import EarlyStopper
 from modules.recorders import Recorder
@@ -30,7 +31,8 @@ config = load_yaml(config_path)
 
 # Train Serial
 kst = timezone(timedelta(hours=9))
-train_serial = datetime.now(tz=kst).strftime("%Y%m%d_%H%M%S")
+serial = config['TRAINER']['train_serial']
+train_serial = serial if serial else datetime.now(tz=kst).strftime("%Y%m%d_%H%M%S")
 
 # Recorder directory
 RECORDER_DIR = os.path.join(PROJECT_DIR, 'results', 'train', train_serial)
@@ -72,6 +74,9 @@ if __name__ == '__main__':
     # Load model
     model = get_model(model_name=config['TRAINER']['model'],num_classes=config['MODEL']['num_labels'],
                       output_dim=config['MODEL']['output_dim']).to(device)
+    # if serial:
+    #     checkpoint = torch.load(os.path.join(RECORDER_DIR, 'model.pt'))
+    #     model.load_state_dict(checkpoint['model'])
     ema = EMA(model, 0.99)  # Mean teacher model
 
     """
@@ -152,7 +157,7 @@ if __name__ == '__main__':
         logger.info(f"--Val {epoch_index}/{n_epochs}")
         trainer.valid(valid_l_loader=valid_l_loader)
         
-        # row_dict['val_loss'] = trainer.loss_mean
+        row_dict['val_loss'] = trainer.loss_mean
         row_dict['val_elapsed_time'] = trainer.elapsed_time 
         
         for metric_str, score in trainer.score_dict.items():

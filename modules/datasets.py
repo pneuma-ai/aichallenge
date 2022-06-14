@@ -116,6 +116,13 @@ def batch_transform(data, label, logits, crop_size, scale_size, apply_augmentati
         torch.cat(data_list).to(device), torch.cat(label_list).to(device), torch.cat(logits_list).to(device)
     return data_trans, label_trans, logits_trans
 
+# --------------------------------------------------------------------------------
+# Define segmentation label re-mapping
+# --------------------------------------------------------------------------------
+def harbor_class_map(mask):
+    # -1 is equivalent to 255 in uint8
+    return mask - 1
+
 
 # --------------------------------------------------------------------------------
 # Define indices for labelled, unlabelled training images, and test images
@@ -213,13 +220,14 @@ class BuildDataLoader:
                                        augmentation=False, train=True, is_label=True)
         test_dataset    = BuildDataset(self.data_path, self.test_idx,
                                        crop_size=self.im_size, scale_size=(1.0, 1.0),
-                                       augmentation=False, train=False, is_label=True)
+                                       augmentation=False, train=False, is_label=False)
 
         if supervised:  # no unlabelled dataset needed, double batch-size to match the same number of training samples
             self.batch_size = self.batch_size * 2
 
-        num_samples = self.batch_size * 200  # for total 40k iterations with 200 epochs
+        num_samples = self.batch_size * 100  # for total 20k iterations with 100 epochs
         # num_samples = self.batch_size * 2
+
         train_l_loader = torch.utils.data.DataLoader(
             train_l_dataset,
             batch_size=self.batch_size,

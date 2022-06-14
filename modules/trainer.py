@@ -62,8 +62,7 @@ class Trainer():
             # generate pseudo-labels
             with torch.no_grad():
                 pred_u, _ = self.ema.model(train_u_data)
-                pred_u_large_raw = F.interpolate(pred_u, size=train_u_data.shape[2:], mode='bilinear',
-                                                 align_corners=True)
+                pred_u_large_raw = F.interpolate(pred_u, size=train_u_data.shape[2:], mode='bilinear', align_corners=True)
                 pseudo_logits, pseudo_labels = torch.max(torch.softmax(pred_u_large_raw, dim=1), dim=1)
 
                 # random scale images first
@@ -144,7 +143,6 @@ class Trainer():
 
     def valid(self, valid_l_loader):
         valid_epoch = len(valid_l_loader)
-        start_timestamp = time()
         with torch.no_grad():
             self.ema.model.eval()
             valid_dataset = iter(valid_l_loader)
@@ -152,16 +150,11 @@ class Trainer():
             for _ in range(valid_epoch):
                 valid_data, valid_label = valid_dataset.next()
                 valid_data, valid_label = valid_data.to(self.device), valid_label.to(self.device)
-
                 pred, _ = self.ema.model(valid_data)
                 pred_u_large_raw = F.interpolate(pred, size=valid_label.shape[1:], mode='bilinear', align_corners=True)
                 valid_conf_mat.update(pred_u_large_raw.argmax(1).flatten(), valid_label.flatten())
         self.mIoU, _ = valid_conf_mat.get_metrics()
         self.score_dict['mIoU'] = self.mIoU
-
-        # Elapsed time
-        end_timestamp = time()
-        self.elapsed_time = end_timestamp - start_timestamp
 
     def inference(self, test_loader, save_path, sample_submission):
         # batch size of the test loader should be 1
